@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Подтвердите email{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1 class="auth-card__title">Почти готово</h1>
+    <p class="auth-card__lead">
+      На адрес <strong>{{ email }}</strong> отправлено письмо со ссылкой для подтверждения
+      (заглушка: письмо выводится в консоль сервера).
+    </p>
+    <p class="home-text home-text--muted" style="margin: 0 0 20px; font-size: 14px;">
+      После подтверждения вы сможете войти в аккаунт.
+    </p>
+    {% if confirm_link_demo %}
+    <p class="home-text home-text--muted" style="word-break: break-all; font-size: 13px; margin: 0 0 20px;">
+      Демо: <a href="{{ confirm_link_demo }}">ссылка подтверждения</a>
+    </p>
+    {% endif %}
+    <div class="auth-card__footer" style="margin-top: 0;">
+      <a href="{% url 'accounts:login' %}">На страницу входа</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RideX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script>
+      window.__PUBLIC_CONFIG__ = {
+        isAuthenticated: {{ user.is_authenticated|yesno:"true,false" }},
+        emailVerified: {% if user.is_authenticated %}{{ user.email_verified|yesno:"true,false" }}{% else %}true{% endif %},
+        userId: {% if user.is_authenticated %}{{ user.id }}{% else %}null{% endif %},
+        username: {% if user.is_authenticated %}"{{ user.username|escapejs }}"{% else %}null{% endif %}
+      };
+    </script>
+</head>
+<body>
+<div id="client-root"></div>
+<script type="module" src="{% static 'assets/client-main.js' %}"></script>
+</body>
+</html>

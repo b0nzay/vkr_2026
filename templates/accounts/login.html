@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Вход{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <h1 class="auth-card__title">Вход</h1>
+    <p class="auth-card__lead">Войдите в аккаунт RideX</p>
+
+    <form method="post" class="auth-form">
+      {% csrf_token %}
+      {% if request.GET.next %}
+        <input type="hidden" name="next" value="{{ request.GET.next }}">
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="auth-form__errors">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="form-row-auth">
+        <label for="{{ form.username.id_for_label }}">
+          Логин
+          {{ form.username }}
+          {% if form.username.errors %}<span class="auth-form__field-errors">{{ form.username.errors }}</span>{% endif %}
+        </label>
+        <label for="{{ form.password.id_for_label }}">
+          Пароль
+          {{ form.password }}
+          {% if form.password.errors %}<span class="auth-form__field-errors">{{ form.password.errors }}</span>{% endif %}
+        </label>
+      </div>
+
+      <button type="submit" class="auth-form__submit">Войти</button>
+    </form>
+
+    <div class="auth-card__footer">
+      Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a>
+    </div>
+  </div>
+</div>
+<button type="button" class="scroll-to-top auth-floating-btn" aria-label="Наверх" data-auth-scroll-top>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+    <path d="M12 18V6M12 6l-6 6M12 6l6 6" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+</button>
+<div class="support-widget auth-support-widget">
+  <button type="button" class="support-widget__fab auth-chat-fab" data-auth-chat-toggle aria-label="Открыть чат поддержки" aria-expanded="false">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z" />
+    </svg>
+  </button>
+  <div class="support-widget__backdrop" data-auth-chat-backdrop hidden></div>
+  <div class="support-widget__panel" data-auth-chat-panel hidden>
+    <div class="support-widget__head">
+      <span class="support-widget__title">Поддержка</span>
+      <button type="button" class="support-widget__close" data-auth-chat-close aria-label="Закрыть чат">×</button>
+    </div>
+    <div class="support-widget__messages" data-auth-chat-messages>
+      <p class="support-widget__empty">Напишите нам — ответим в ближайшее время.</p>
+    </div>
+    <div class="support-widget__error" data-auth-chat-error hidden></div>
+    <div class="support-widget__file-name" data-auth-chat-file hidden></div>
+    <form class="support-widget__form" data-auth-chat-form>
+      <div class="support-widget__composer">
+        <input type="file" class="support-widget__file-input" data-auth-chat-input-file accept="image/*,.pdf" tabindex="-1" aria-hidden="true">
+        <button type="button" class="support-widget__attach" data-auth-chat-attach-btn aria-label="Прикрепить файл">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.2-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <textarea class="support-widget__input support-widget__input--composer" rows="2" placeholder="Введите сообщение" data-auth-chat-input></textarea>
+        <button type="submit" class="support-widget__send home-btn home-btn--primary" data-auth-chat-send aria-label="Отправить">➤</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="{% static 'js/auth-pages.js' %}" defer></script>
+{% endblock %}

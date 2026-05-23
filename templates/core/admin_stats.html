@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Админская статистика</h1>
+
+  <p>Всего заказов: {{ total_orders }}</p>
+  <p>Сумма продаж: {{ total_revenue }}</p>
+  <p>Всего пользователей: {{ total_users }}</p>
+
+  <h2>Пользователи по ролям</h2>
+  <ul>
+    {% for item in users_by_role %}
+      <li>{{ item.role }}: {{ item.count }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Заказы по статусам</h2>
+  <ul>
+    {% for item in orders_by_status %}
+      <li>{{ item.status }}: {{ item.count }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
