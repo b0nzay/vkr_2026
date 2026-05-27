@@ -18,14 +18,6 @@ class IsManagerOrAdmin(BasePermission, RolePermissionMixin):
 
 
 class ProductCategoryPermission(BasePermission, RolePermissionMixin):
-    """
-    Права на товары по методам (как Django model permissions):
-    - GET/HEAD/OPTIONS → view_product
-    - POST → add_product
-    - PUT/PATCH → change_product
-    - DELETE → delete_product
-    """
-
     def has_permission(self, request, view):
         user = request.user
         if request.method in SAFE_METHODS:

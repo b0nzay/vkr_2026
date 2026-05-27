@@ -210,7 +210,6 @@ class AdminStatsPermissionsTests(BaseAPIPermissionsTest):
         response = self.client_api.get(url)
         # В зависимости от конфигурации прав админ может либо иметь,
         # либо не иметь специальное право `core.view_reports`.
-        # Важно, что эндпоинт не падает с 5xx.
         self.assertIn(response.status_code, (200, 403))
 
 

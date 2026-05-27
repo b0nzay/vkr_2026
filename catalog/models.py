@@ -19,7 +19,6 @@ class Category(models.Model):
 
     @classmethod
     def subtree_ids(cls, root_id: int) -> list[int]:
-        """Все id категории root_id и её потомков (BFS)."""
         rid = int(root_id)
         ids: list[int] = [rid]
         frontier: list[int] = [rid]
@@ -48,13 +47,6 @@ class Product(models.Model):
         on_delete=models.PROTECT,
         related_name="products",
     )
-    brand = models.ForeignKey(
-        "ProductBrand",
-        on_delete=models.PROTECT,
-        related_name="products",
-        null=True,
-        blank=True,
-    )
     brand_name = models.CharField(max_length=100, blank=True, default="")
     compatibility_mode = models.CharField(
         max_length=20,
@@ -79,38 +71,9 @@ class Product(models.Model):
         return f"{self.name} ({self.sku})"
 
 
-class Vehicle(models.Model):
-    brand = models.CharField(max_length=100)
-    model = models.CharField(max_length=100)
-    generation = models.CharField(max_length=100)
-    body_type = models.CharField(max_length=50)
-
-    class Meta:
-        ordering = ["brand", "model", "generation", "body_type"]
-        indexes = [
-            models.Index(
-                fields=["brand", "model", "generation", "body_type"],
-                name="veh_brand_model_gen_idx",
-            ),
-        ]
-
-    def __str__(self) -> str:
-        return f"{self.brand} {self.model} {self.generation} ({self.body_type})"
-
-
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
     logo = models.ImageField(upload_to='brands/', blank=True, null=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self) -> str:
-        return self.name
-
-
-class ProductBrand(models.Model):
-    name = models.CharField(max_length=100, unique=True)
 
     class Meta:
         ordering = ["name"]
@@ -246,47 +209,6 @@ class TechVariant(models.Model):
     def __str__(self) -> str:
         generation = self.generation if self.generation is not None else 'Без привязки'
         return f"{generation}: {self.engine_code} / {self.transmission_type} {self.transmission_code}"
-
-
-class BodyStyle(models.Model):
-    vehicle = models.ForeignKey(
-        Vehicle,
-        on_delete=models.CASCADE,
-        related_name="body_styles",
-    )
-    name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='body_styles/', blank=True, null=True)
-
-    class Meta:
-        ordering = ["vehicle", "name"]
-
-    def __str__(self) -> str:
-        return f"{self.vehicle}: {self.name}"
-
-
-class ProductVehicleCompatibility(models.Model):
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE,
-        related_name="vehicle_compatibilities",
-    )
-    vehicle = models.ForeignKey(
-        Vehicle,
-        on_delete=models.CASCADE,
-        related_name="product_compatibilities",
-    )
-    notes = models.CharField(max_length=255, blank=True)
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["product", "vehicle"],
-                name="product_vehicle_unique",
-            ),
-        ]
-
-    def __str__(self) -> str:
-        return f"{self.product} -> {self.vehicle}"
 
 
 class ProductBodyTypeCompatibility(models.Model):

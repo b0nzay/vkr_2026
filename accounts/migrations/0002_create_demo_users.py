@@ -14,7 +14,7 @@ def create_demo_users(apps, schema_editor):
                 "is_superuser": is_superuser,
             },
         )
-        # Обновляем роль/флаги на случай, если пользователь уже был создан ранее
+
         updated = False
         if user.role != role:
             user.role = role

@@ -6,7 +6,6 @@ from .views import (
     AuditLogViewSet,
     BodyTypeViewSet,
     BrandViewSet,
-    ProductBrandViewSet,
     CarModelViewSet,
     CategoryViewSet,
     GenerationViewSet,
@@ -38,8 +37,6 @@ from .views import (
     UserViewSet,
     SiteBlockViewSet,
     ReviewViewSet,
-    VehicleViewSet,
-    ProductVehicleCompatibilityViewSet,
 )
 from .views_profile import profile_change_password_view, profile_reviews_view, profile_view
 from .views_import import ImportExecuteView, ImportPreviewView
@@ -58,10 +55,7 @@ router.register(r'products', ProductViewSet, basename='product')
 router.register(r'orders', OrderViewSet, basename='order')
 router.register(r'messages', MessageViewSet, basename='message')
 router.register(r'users', UserViewSet, basename='user')
-router.register(r'vehicles', VehicleViewSet, basename='vehicle')
-router.register(r'product-vehicle-compat', ProductVehicleCompatibilityViewSet, basename='product-vehicle-compat')
 router.register(r'brands', BrandViewSet, basename='brand')
-router.register(r'product-brands', ProductBrandViewSet, basename='product-brand')
 router.register(r'car-models', CarModelViewSet, basename='car-model')
 router.register(r'generations', GenerationViewSet, basename='generation')
 router.register(r'body-types', BodyTypeViewSet, basename='body-type')

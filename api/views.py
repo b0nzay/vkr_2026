@@ -18,15 +18,12 @@ from accounts.models import User
 from catalog.models import (
     BodyType,
     Brand,
-    ProductBrand,
     CarModel,
     Category,
     Generation,
     Product,
     ProductBodyTypeCompatibility,
     ProductTechVariantCompatibility,
-    ProductVehicleCompatibility,
-    Vehicle,
     TechVariant,
 )
 from chat.models import Message
@@ -57,7 +54,6 @@ from .serializers import (
     AuditLogListSerializer,
     BodyTypeSerializer,
     BrandSerializer,
-    ProductBrandSerializer,
     CarModelSerializer,
     CategorySerializer,
     FAQItemSerializer,
@@ -72,8 +68,6 @@ from .serializers import (
     ProductSerializer,
     TechVariantSerializer,
     UserSerializer,
-    VehicleSerializer,
-    ProductVehicleCompatibilitySerializer,
     FAQItemPublicSerializer,
     ReviewCreateSerializer,
     ReviewManageSerializer,
@@ -254,13 +248,10 @@ def _serialize_for_audit(serializer) -> dict | None:
         raw = serializer.data
     except Exception:
         return None
-    # JSON-safe snapshot для устойчивого хранения до/после.
     return json.loads(json.dumps(raw, ensure_ascii=False, default=str))
 
 
 class AuditLogMixin:
-    """Журналирование CREATE/UPDATE/DELETE для ViewSet с perform_* (в т.ч. без ModelViewSet)."""
-
     audit_entity_label = ''
 
     def _get_audit_entity(self):
@@ -429,9 +420,8 @@ class CategoryViewSet(AuditedModelViewSet):
 
 class ProductViewSet(AuditedModelViewSet):
     queryset = (
-        Product.objects.select_related('category', 'brand')
+        Product.objects.select_related('category')
         .prefetch_related(
-            'vehicle_compatibilities__vehicle',
             'body_type_compatibilities__body_type__generation__car_model__brand',
             'tech_variant_compatibilities__tech_variant__generation__car_model__brand',
         )
@@ -454,7 +444,6 @@ class ProductViewSet(AuditedModelViewSet):
             'stock': instance.stock,
             'description': instance.description,
             'category': instance.category_id,
-            'brand': instance.brand_id,
             'brand_name': instance.brand_name,
             'compatibility_mode': instance.compatibility_mode,
             'image': instance.image.name if getattr(instance, 'image', None) else None,
@@ -485,11 +474,6 @@ class ProductViewSet(AuditedModelViewSet):
                 'tech_variant_compatibilities__tech_variant__generation__name__icontains',
                 'tech_variant_compatibilities__tech_variant__engine_code__icontains',
                 'tech_variant_compatibilities__tech_variant__transmission_code__icontains',
-                # legacy vehicle совместимости (если используется где-то ещё)
-                'vehicle_compatibilities__vehicle__brand__icontains',
-                'vehicle_compatibilities__vehicle__model__icontains',
-                'vehicle_compatibilities__vehicle__generation__icontains',
-                'vehicle_compatibilities__vehicle__body_type__icontains',
             ],
         )
 
@@ -550,8 +534,6 @@ class ProductViewSet(AuditedModelViewSet):
             '-stock': '-stock',
         }
         qs = _apply_ordering(qs, params.get('ordering'), allowed_orderings, default='-id')
-
-        # Поиск по связанным таблицам может порождать дубликаты.
         return qs.distinct()
 
     def create(self, request, *args, **kwargs):
@@ -566,11 +548,6 @@ class ProductViewSet(AuditedModelViewSet):
 
     @action(detail=True, methods=['post'], url_path='adjust-stock', permission_classes=[IsAuthenticated])
     def adjust_stock(self, request, pk=None):
-        """
-        Изменение остатка товара:
-        - принимает либо абсолютное значение `stock`,
-          либо дельту `delta` (целые числа).
-        """
         if not request.user.has_perm('catalog.change_product'):
             raise PermissionDenied('Недостаточно прав для изменения остатков товара')
 
@@ -602,7 +579,6 @@ class ProductViewSet(AuditedModelViewSet):
                     delta_int = int(delta)
                 except (TypeError, ValueError):
                     return Response({'detail': 'Поле delta должно быть целым числом.'}, status=400)
-                # используем F-выражение, чтобы избежать гонок
                 Product.objects.filter(pk=product.pk).update(
                     stock=F('stock') + delta_int,
                 )
@@ -693,26 +669,6 @@ class BrandViewSet(AuditedModelViewSet):
                 log_imminent_generation_deletes(request, generation_qs)
                 log_imminent_car_model_deletes(request, CarModel.objects.filter(brand_id=brand.id))
             return super().destroy(request, *args, **kwargs)
-
-
-class ProductBrandViewSet(AuditedModelViewSet):
-    queryset = ProductBrand.objects.all()
-    serializer_class = ProductBrandSerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
-    audit_entity_label = 'Бренд товара'
-
-
-class VehicleViewSet(AuditedModelViewSet):
-    queryset = Vehicle.objects.all()
-    serializer_class = VehicleSerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
-    audit_entity_label = 'Транспортное средство'
-
-
-class ProductVehicleCompatibilityViewSet(viewsets.ModelViewSet):
-    queryset = ProductVehicleCompatibility.objects.all()
-    serializer_class = ProductVehicleCompatibilitySerializer
-    permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
 
 
 class CarModelViewSet(AuditedModelViewSet):
@@ -875,7 +831,6 @@ class BodyTypeViewSet(AuditedModelViewSet):
             except (TypeError, ValueError):
                 pass
 
-        # Контракт: `name`, но для удобства поддержим `q` как алиас.
         name = params.get('name') or params.get('q')
         qs = _apply_tokenized_search(qs, name, ['name__icontains', 'generation__name__icontains'])
 
@@ -1090,7 +1045,6 @@ class UserViewSet(AuditLogMixin,
         user = self.request.user
         if not user.has_perm('accounts.add_user'):
             raise PermissionDenied('Недостаточно прав для создания пользователей')
-        # Явный вызов CreateModelMixin: нельзя super().perform_create() — иначе снова этот метод.
         mixins.CreateModelMixin.perform_create(self, serializer)
         self._create_audit_log(
             action=AuditLog.Action.CREATE,
@@ -1103,9 +1057,6 @@ class UserViewSet(AuditLogMixin,
         user = self.request.user
         if not user.has_perm('accounts.change_user'):
             raise PermissionDenied('Недостаточно прав для изменения пользователей')
-
-        # Менеджеру разрешаем редактировать только базовые поля пользователя,
-        # но не менять его роль. Администратору ограничение не применяется.
         is_manager = getattr(user, 'is_manager', lambda: False)()
         is_admin = getattr(user, 'is_admin', lambda: False)()
         instance = serializer.instance
@@ -1115,7 +1066,6 @@ class UserViewSet(AuditLogMixin,
             if new_role is not None and new_role != instance.role:
                 raise PermissionDenied('Недостаточно прав для изменения роли пользователя')
 
-        # Защита от деактивации последнего администратора
         new_is_active = serializer.validated_data.get('is_active')
         is_becoming_inactive = new_is_active is False and instance.is_active
         if is_becoming_inactive and instance.role == User.Roles.ADMIN:
@@ -1137,10 +1087,6 @@ class UserViewSet(AuditLogMixin,
 
 
 class AdminStatsView(APIView):
-    """
-    Простая статистика для администратора.
-    """
-
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -1360,11 +1306,6 @@ def storefront_cart_clear(request):
 
 
 def _storefront_checkout_precheck(cart: Cart, vehicle_context: dict, allow_conflicts: bool):
-    """
-    Shared validation for checkout and checkout/validate.
-    Returns (error_response, items, products_map).
-    On success error_response is None and items/products_map are set for order creation.
-    """
     items = list(cart)
     if not items:
         return Response({'detail': 'Корзина пуста'}, status=status.HTTP_400_BAD_REQUEST), None, None

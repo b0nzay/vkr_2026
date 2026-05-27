@@ -36,12 +36,6 @@ class Order(models.Model):
         return f'Order #{self.pk} by {self.user}'
 
     def change_status(self, new_status: str, changed_by) -> None:
-        """
-        Change order status and log the change.
-
-        :param new_status: One of Status choices.
-        :param changed_by: User who performs the change.
-        """
         from_status = self.status
         self.status = new_status
         self.save(update_fields=['status', 'updated_at'])
@@ -61,7 +55,6 @@ class Order(models.Model):
 
     @property
     def total_price(self):
-        """Calculate total order price from all items."""
         from decimal import Decimal
         total = Decimal('0')
         for item in self.items.all():
@@ -119,35 +112,3 @@ class OrderStatusHistory(models.Model):
 
     def __str__(self) -> str:
         return f'{self.order} {self.from_status} -> {self.to_status}'
-
-
-class VinCheckRequest(models.Model):
-    class Status(models.TextChoices):
-        NEW = 'NEW', 'Новый'
-        IN_PROGRESS = 'IN_PROGRESS', 'В работе'
-        DONE = 'DONE', 'Завершён'
-
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='vin_requests',
-    )
-    vin = models.CharField(max_length=32)
-    status = models.CharField(
-        max_length=32,
-        choices=Status.choices,
-        default=Status.NEW,
-    )
-    manager = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,
-        related_name='vin_requests',
-        null=True,
-        blank=True,
-    )
-    comment = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return f'VIN {self.vin} for {self.order}'

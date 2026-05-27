@@ -133,9 +133,5 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 
 @permission_required('accounts.view_user', raise_exception=True)
 def manage_users(request: HttpRequest) -> HttpResponse:
-    """
-    Пример server-rendered view с проверкой прав для управления пользователями.
-    Пока только отображает список пользователей.
-    """
     users = User.objects.all().order_by('id')
     return render(request, 'accounts/manage_users.html', {'users': users})

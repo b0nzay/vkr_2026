@@ -135,29 +135,3 @@ class Message(models.Model):
 
     def __str__(self) -> str:
         return f'Message #{self.pk} in {self.order}'
-
-
-class OrderParticipant(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='order_participations',
-    )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='participants',
-    )
-    last_read_message = models.ForeignKey(
-        Message,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='+',
-    )
-
-    class Meta:
-        unique_together = ('user', 'order')
-
-    def __str__(self) -> str:
-        return f'{self.user} in {self.order}'

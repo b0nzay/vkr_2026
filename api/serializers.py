@@ -2,17 +2,13 @@ from rest_framework import serializers
 
 from accounts.models import User
 from catalog.models import (
-    BodyStyle,
     Brand,
-    ProductBrand,
     CarModel,
     Category,
     Generation,
     Product,
     ProductBodyTypeCompatibility,
     ProductTechVariantCompatibility,
-    ProductVehicleCompatibility,
-    Vehicle,
     BodyType,
     TechVariant,
 )
@@ -182,15 +178,6 @@ class ProductSerializer(serializers.ModelSerializer):
                 if label not in seen:
                     seen.add(label)
                     result.append(label)
-        else:
-            for compat in getattr(obj, 'vehicle_compatibilities', []).all():
-                vehicle = compat.vehicle
-                if not vehicle:
-                    continue
-                label = f'{vehicle.brand} {vehicle.model} {vehicle.generation} ({vehicle.body_type})'
-                if label not in seen:
-                    seen.add(label)
-                    result.append(label)
 
         return result
 
@@ -297,18 +284,6 @@ class BrandSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'logo']
 
 
-class ProductBrandSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductBrand
-        fields = ['id', 'name']
-
-
-class BodyStyleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BodyStyle
-        fields = ['id', 'vehicle', 'name', 'image']
-
-
 class CarModelSerializer(serializers.ModelSerializer):
     brand_name = serializers.CharField(source='brand.name', read_only=True)
 
@@ -410,24 +385,11 @@ class TechVariantSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         # При создании конфигурации привязка к поколению обязательна,
-        # иначе в справочнике появятся «сироты» (которые нужны только при detach_tech).
         if self.instance is None:
             generation = attrs.get('generation')
             if generation is None:
                 raise serializers.ValidationError({'generation': 'Поколение обязательно.'})
         return attrs
-
-
-class VehicleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Vehicle
-        fields = ['id', 'brand', 'model', 'generation', 'body_type']
-
-
-class ProductVehicleCompatibilitySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductVehicleCompatibility
-        fields = ['id', 'product', 'vehicle', 'notes']
 
 
 class ProductBodyTypeCompatibilitySerializer(serializers.ModelSerializer):

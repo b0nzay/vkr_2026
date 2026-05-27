@@ -3,8 +3,6 @@ from django.test import TestCase
 from catalog.models import (
     Category,
     Product,
-    Vehicle,
-    ProductVehicleCompatibility,
 )
 
 
@@ -48,36 +46,3 @@ class ProductConstraintsTests(TestCase):
                 stock=-1,
                 category=self.category,
             )
-
-
-class VehicleAndCompatibilityTests(TestCase):
-    def setUp(self):
-        self.category = Category.objects.create(name="Бамперы")
-        self.product = Product.objects.create(
-            name="Передний бампер",
-            sku="FR-BMP-TEST",
-            price=10000,
-            stock=3,
-            category=self.category,
-        )
-        self.vehicle = Vehicle.objects.create(
-            brand="Toyota",
-            model="Camry",
-            generation="XV50",
-            body_type="sedan",
-        )
-
-    def test_unique_product_vehicle_pair(self):
-        ProductVehicleCompatibility.objects.create(
-            product=self.product,
-            vehicle=self.vehicle,
-        )
-
-        with self.assertRaises(IntegrityError):
-            ProductVehicleCompatibility.objects.create(
-                product=self.product,
-                vehicle=self.vehicle,
-            )
-
-
-
