@@ -71,16 +71,16 @@ function XlsxImportHelpPanel({ entityType, entityLabel }) {
       <div className="import-help__section">
         <p className="import-help__title">Файл XLSX</p>
         <p className="import-help__text">
-          Берётся <strong>активный лист</strong> книги Excel. <strong>Первая строка</strong> — заголовки колонок (имена полей, как в API).{' '}
-          <strong>Со второй строки</strong> — строки данных; полностью пустые строки пропускаются. Поддерживаются те же поля, что и при импорте{' '}
-          <span className="import-help__code">.json</span> (массив объектов) — формат JSON менять не нужно, его по-прежнему можно выбрать в этом
+          Берётся активный лист книги Excel. Первая строка –  заголовки колонок (имена полей, как в API).{' '}
+          Со второй строки – строки данных; полностью пустые строки пропускаются. Поддерживаются те же поля, что и при импорте{' '}
+          <span className="import-help__code">.json</span> (массив объектов) – формат JSON менять не нужно, его по-прежнему можно выбрать в этом
           окне.
         </p>
       </div>
       <div className="import-help__section">
         <p className="import-help__title">Сущность: {entityLabel}</p>
         <p className="import-help__text">
-          Ключ для поиска дубликатов (конфликтов): <strong>{conflictKey}</strong>.
+          Ключ для поиска дубликатов (конфликтов): {conflictKey}.
         </p>
         <p className="import-help__text">Обязательные колонки (хотя бы одно из допустимых имён поля по строке):</p>
         <ul className="import-help__list">
@@ -95,11 +95,11 @@ function XlsxImportHelpPanel({ entityType, entityLabel }) {
         <div className="import-help__section">
           <p className="import-help__title">Совместимость товаров (необязательно)</p>
           <p className="import-help__text">
-            <span className="import-help__code">body_type_refs</span> — несколько значений через точку с запятой, формат каждого:{' '}
+            <span className="import-help__code">body_type_refs</span> – несколько значений через точку с запятой, формат каждого:{' '}
             <span className="import-help__code">Марка|Модель|Поколение|КодКузова</span> (например, <span className="import-help__code">SEDAN</span>).
           </p>
           <p className="import-help__text">
-            <span className="import-help__code">tech_variant_refs</span> — формат:{' '}
+            <span className="import-help__code">tech_variant_refs</span> – формат:{' '}
             <span className="import-help__code">Марка|Модель|Поколение|КодДвигателя|КодКПП</span>, несколько через «;».
           </p>
         </div>
@@ -107,8 +107,8 @@ function XlsxImportHelpPanel({ entityType, entityLabel }) {
       <div className="import-help__section">
         <p className="import-help__title">Изображения (необязательно)</p>
         <p className="import-help__text">
-          Можно приложить архив <span className="import-help__code">.zip</span> и указать в таблице относительные пути: для товаров —{' '}
-          <span className="import-help__code">image_path</span>, для авто — <span className="import-help__code">brand_logo_path</span>,{' '}
+          Можно приложить архив <span className="import-help__code">.zip</span> и указать в таблице относительные пути: для товаров –{' '}
+          <span className="import-help__code">image_path</span>, для авто – <span className="import-help__code">brand_logo_path</span>,{' '}
           <span className="import-help__code">generation_image_path</span>, <span className="import-help__code">body_type_image_path</span>. Путь
           внутри архива, без «..» и абсолютных путей; расширения: jpg, jpeg, png, webp, gif.
         </p>
@@ -117,13 +117,13 @@ function XlsxImportHelpPanel({ entityType, entityLabel }) {
         <p className="import-help__title">Режимы при конфликте ключей</p>
         <ul className="import-help__list">
           <li>
-            <span className="import-help__code">update</span> — обновить существующую запись
+            <span className="import-help__code">update</span> – обновить существующую запись
           </li>
           <li>
-            <span className="import-help__code">skip</span> — пропустить строку с конфликтом
+            <span className="import-help__code">skip</span> – пропустить строку с конфликтом
           </li>
           <li>
-            <span className="import-help__code">stop</span> — остановить импорт на первом конфликте
+            <span className="import-help__code">stop</span> – остановить импорт на первом конфликте
           </li>
         </ul>
         <p className="import-help__text">
