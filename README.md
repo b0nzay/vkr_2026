@@ -41,7 +41,6 @@ pip install -r requirements.txt
 cp .env.example .env
 
 python manage.py migrate
-python manage.py test
 python manage.py runserver
 ```
 
@@ -68,6 +67,6 @@ npm run build
 | `admin`   | `admin123`   | админ    |
 
 
-- Витрина: `/`
-- Панель: `/dashboard/`
+- Главная: `/`
+- Админ-панель: `/dashboard/`
 - Django admin: `/admin/`
