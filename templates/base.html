@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Autoparts{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<header class="header">
+    <div class="header__container">
+        <a class="header__brand" href="{% url 'catalog:home' %}" aria-label="RideX — главная">
+            <img src="{% static 'img/logo/logo small.png' %}" alt="" class="header__brand-icon">
+            <span class="header__brand-text" aria-hidden="true">RideX</span>
+        </a>
+
+        <nav class="header__nav" aria-label="Основная навигация">
+            <a href="{% url 'catalog:storefront_catalog' %}" class="nav-link">Каталог</a>
+            <a href="{% url 'catalog:home' %}#delivery" class="nav-link">Доставка</a>
+            <a href="{% url 'catalog:home' %}#about" class="nav-link">О нас</a>
+            <a href="{% url 'catalog:home' %}#reviews" class="nav-link">Отзывы</a>
+            <a href="{% url 'catalog:home' %}#faq" class="nav-link">FAQ</a>
+        </nav>
+
+        <div class="header__actions">
+            <a href="{% url 'catalog:storefront_favorites' %}" class="nav-pill">
+                Избранное
+                <span class="cart-badge" id="favorites-count"></span>
+            </a>
+            <a href="{% url 'catalog:storefront_cart' %}" class="nav-pill nav-pill--cart">
+                Корзина
+                <span class="cart-badge" id="cart-count"></span>
+            </a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'orders:order_list' %}" class="nav-pill">Мои заказы</a>
+                <a href="{% url 'accounts:logout' %}" class="nav-pill nav-pill--accent">Выйти</a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}" class="nav-pill">Регистрация</a>
+                <a href="{% url 'accounts:login' %}" class="nav-pill nav-pill--accent">Вход</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+<main class="main">
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message message--{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="footer">
+    <div class="footer__container">
+        <div class="footer__grid">
+            <div class="footer__brand">
+                <img src="{% static 'img/logo/logo biggest.png' %}" alt="" class="footer__brand-icon">
+                <span class="footer__brand-text" aria-hidden="true">RideX</span>
+            </div>
+
+            <div class="footer__col">
+                <div class="footer__title">Покупателям</div>
+                <a class="footer__link" href="{% url 'catalog:storefront_catalog' %}">Каталог</a>
+                <a class="footer__link" href="{% url 'catalog:storefront_cart' %}">Корзина</a>
+                {% if user.is_authenticated %}
+                    <a class="footer__link" href="{% url 'orders:order_list' %}">Мои заказы</a>
+                {% else %}
+                    <a class="footer__link" href="{% url 'accounts:login' %}">Вход</a>
+                {% endif %}
+            </div>
+
+            <div class="footer__col">
+                <div class="footer__title">Контакты</div>
+                <div class="footer__text">+7 (999) 999-99-99</div>
+                <div class="footer__text">info@ridex.ru</div>
+            </div>
+        </div>
+
+        <div class="footer__bottom">
+            <div class="footer__muted">RideX &copy; {% now "Y" %}</div>
+        </div>
+    </div>
+</footer>
+<script src="{% static 'js/header-badges.js' %}" defer></script>
+</body>
+</html>
+

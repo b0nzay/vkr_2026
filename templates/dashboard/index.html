@@ -1,0 +1,10 @@
+{% extends "dashboard/base_dashboard.html" %}
+{% load static %}
+
+{% block title %}Backoffice{% endblock %}
+
+{% block content %}
+<div id="dashboard-root"></div>
+<script type="module" src="{% static 'assets/dashboard-main.js' %}"></script>
+{% endblock %}
+

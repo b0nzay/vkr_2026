@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Управление пользователями</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Логин</th>
+        <th>Email</th>
+        <th>Роль</th>
+        <th>Активен</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+          <td>{% if user.is_active %}Да{% else %}Нет{% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
